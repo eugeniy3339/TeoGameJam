@@ -3,11 +3,18 @@ using UnityEngine.InputSystem;
 
 public class SwingingManager : MonoBehaviour
 {
+    private Rigidbody2D rigidbody;
+
     [SerializeField] private float maxSwingRaycastDistance = 10f;
     [SerializeField] private LayerMask layerMask;
     private RaycastHit2D curSwingHit;
 
     private Swing curSwing;
+
+    private void Awake()
+    {
+        rigidbody = GetComponent<Rigidbody2D>();
+    }
 
     public void swing(bool start)
     {
@@ -34,7 +41,7 @@ public class SwingingManager : MonoBehaviour
         if (curSwing != null)
             StopSwinging();
 
-        curSwing = Swing.SpawnSwing(swingHit.point);
+        curSwing = Swing.SpawnSwing(swingHit.point, rigidbody);
         print(curSwing);
     }
 

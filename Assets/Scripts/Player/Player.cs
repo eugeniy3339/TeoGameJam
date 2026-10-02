@@ -8,7 +8,7 @@ public class Player : MonoBehaviour
     public Rigidbody2D rigidbody { get; private set; }
 
     [SerializeField] private TMP_Text coinsText;
-    private int coinsCount;
+    public static int coinsCount { get; private set; }
 
     private void Awake()
     {
@@ -16,7 +16,7 @@ public class Player : MonoBehaviour
 
         rigidbody = GetComponent<Rigidbody2D>();
 
-        SetCoinsCount(coinsCount);
+        SetCoinsCount(0);
     }
 
     public void AddCoin(int coinValue)

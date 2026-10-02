@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[RequireComponent(typeof(SpringJoint2D))]
+[RequireComponent(typeof(DistanceJoint2D))]
 public class Swing : MonoBehaviour
 {
     private static GameObject _sP;
@@ -14,25 +14,55 @@ public class Swing : MonoBehaviour
         }
     }
 
-    public static Swing SpawnSwing(Vector2 end)
+    public static Swing SpawnSwing(Vector2 end, Rigidbody2D connectedBody)
     {
         Swing swing = Instantiate(swingPrefab).GetComponent<Swing>();
+
         swing.transform.position = end;
-        swing.distance = Vector2.Distance(Player.Instance.transform.position, end);
+        swing.distance = Vector2.Distance(connectedBody.transform.position, end);
+
+        swing.connectedRigidbody = connectedBody;
+        swing.distanceJoint.connectedBody = connectedBody;
+
+        swing.lineRenderer.positionCount = 2;
+        swing.lineRenderer.SetPosition(0, end);
+        swing.lineRenderer.SetPosition(1, connectedBody.transform.position);
+
         return swing;
     }
 
-    [SerializeField] private Transform gfx;
-
-    private SpringJoint2D spring;
-
-    private float distance;
-
-    private void Start()
+    [SerializeField] private DistanceJoint2D _distanceJoint;
+    private DistanceJoint2D distanceJoint
     {
-        spring = GetComponent<SpringJoint2D>();
-        spring.distance = distance;
-        spring.connectedBody = Player.Instance.rigidbody;
+        get
+        {
+            if (_distanceJoint == null)
+                _distanceJoint = GetComponent<DistanceJoint2D>();
+            return _distanceJoint;
+        }
+    }
+
+    [SerializeField] private LineRenderer _lineRenderer;
+    private LineRenderer lineRenderer
+    {
+        get
+        {
+            if (_lineRenderer == null)
+                _lineRenderer = GetComponentInChildren<LineRenderer>();
+            return _lineRenderer;
+        }
+    }
+
+    private Rigidbody2D connectedRigidbody;
+    private float _d;
+    private float distance
+    {
+        get { return _d; }
+        set
+        {
+            _d = value;
+            distanceJoint.distance = value;
+        }
     }
 
     private void LateUpdate()
@@ -42,9 +72,6 @@ public class Swing : MonoBehaviour
 
     private void SetUpGFX()
     {
-        Vector3 dirToThePlayer = Player.Instance.transform.position - transform.position;
-        gfx.position = transform.position + dirToThePlayer / 2f;
-        gfx.right = dirToThePlayer;
-        gfx.localScale = new Vector3(dirToThePlayer.magnitude, gfx.localScale.y, gfx.localScale.z);
+        lineRenderer.SetPosition(1, connectedRigidbody.transform.position);
     }
 }
